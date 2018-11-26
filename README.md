@@ -1,6 +1,6 @@
 # validator
 
-Validator is not validator, just an string error list helper :P
+Validator is not validator, just a string error list helper :P
 
 ## Why
 
