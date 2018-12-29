@@ -1,6 +1,7 @@
 package validator
 
 import (
+	"errors"
 	"strings"
 )
 
@@ -11,16 +12,34 @@ func New() *Validator {
 
 // Validator type
 type Validator struct {
-	errors []string
+	errors []error
 }
 
+// Error implements error interface
 func (v *Validator) Error() string {
-	return strings.Join(v.errors, ", ")
+	return strings.Join(v.Strings(), ", ")
 }
 
 // Errors returns errors
-func (v *Validator) Errors() []string {
+func (v *Validator) Errors() []error {
 	return v.errors
+}
+
+// String implements fmt.Stringer
+func (v *Validator) String() string {
+	if v.Valid() {
+		return "no error"
+	}
+	return v.Error()
+}
+
+// Strings returns errors in strings
+func (v *Validator) Strings() []string {
+	s := make([]string, len(v.errors))
+	for i := range v.errors {
+		s[i] = v.errors[i].Error()
+	}
+	return s
 }
 
 // Valid returns true if no error
@@ -29,7 +48,9 @@ func (v *Validator) Valid() bool {
 }
 
 // Must checks x must not an error or true if bool
-func (v *Validator) Must(x interface{}, msg string) {
+//
+// msg must be error or string
+func (v *Validator) Must(x interface{}, msg interface{}) {
 	switch x := x.(type) {
 	case bool:
 		if x {
@@ -43,5 +64,15 @@ func (v *Validator) Must(x interface{}, msg string) {
 		panic("validator: invalid input")
 	}
 
-	v.errors = append(v.errors, msg)
+	var m error
+	switch t := msg.(type) {
+	case error:
+		m = t
+	case string:
+		m = errors.New(t)
+	default:
+		panic("validator: invalid msg")
+	}
+
+	v.errors = append(v.errors, m)
 }
