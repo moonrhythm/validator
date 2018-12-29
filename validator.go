@@ -48,17 +48,18 @@ func (v *Validator) Valid() bool {
 }
 
 // Must checks x must not an error or true if bool
+// and return true if valid
 //
 // msg must be error or string
-func (v *Validator) Must(x interface{}, msg interface{}) {
+func (v *Validator) Must(x interface{}, msg interface{}) bool {
 	switch x := x.(type) {
 	case bool:
 		if x {
-			return
+			return true
 		}
 	case error:
 		if x == nil {
-			return
+			return true
 		}
 	default:
 		panic("validator: invalid input")
@@ -75,4 +76,5 @@ func (v *Validator) Must(x interface{}, msg interface{}) {
 	}
 
 	v.errors = append(v.errors, m)
+	return false
 }
