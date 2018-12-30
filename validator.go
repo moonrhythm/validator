@@ -78,3 +78,8 @@ func (v *Validator) Must(x interface{}, msg interface{}) bool {
 	v.errors = append(v.errors, m)
 	return false
 }
+
+// Add adds errors
+func (v *Validator) Add(err ...error) {
+	v.errors = append(v.errors, err...)
+}
