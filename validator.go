@@ -5,6 +5,34 @@ import (
 	"strings"
 )
 
+// Error is the validate error
+type Error struct {
+	errors []error
+}
+
+// Error implements error interface
+func (err *Error) Error() string {
+	return strings.Join(err.Strings(), ", ")
+}
+
+// Errors returns errors
+func (err *Error) Errors() []error {
+	return err.errors
+}
+
+// Strings returns errors in strings
+func (err *Error) Strings() []string {
+	s := make([]string, len(err.errors))
+	for i := range err.errors {
+		s[i] = err.errors[i].Error()
+	}
+	return s
+}
+
+func (err *Error) clone() *Error {
+	return &Error{errors: err.errors}
+}
+
 // New creates new validator
 func New() *Validator {
 	return &Validator{}
@@ -12,17 +40,15 @@ func New() *Validator {
 
 // Validator type
 type Validator struct {
-	errors []error
+	err Error
 }
 
-// Error implements error interface
-func (v *Validator) Error() string {
-	return strings.Join(v.Strings(), ", ")
-}
-
-// Errors returns errors
-func (v *Validator) Errors() []error {
-	return v.errors
+// Error returns error if has error
+func (v *Validator) Error() error {
+	if !v.Valid() {
+		return v.err.clone()
+	}
+	return nil
 }
 
 // String implements fmt.Stringer
@@ -30,21 +56,12 @@ func (v *Validator) String() string {
 	if v.Valid() {
 		return "no error"
 	}
-	return v.Error()
-}
-
-// Strings returns errors in strings
-func (v *Validator) Strings() []string {
-	s := make([]string, len(v.errors))
-	for i := range v.errors {
-		s[i] = v.errors[i].Error()
-	}
-	return s
+	return v.err.Error()
 }
 
 // Valid returns true if no error
 func (v *Validator) Valid() bool {
-	return len(v.errors) == 0
+	return len(v.err.errors) == 0
 }
 
 // Must checks x must not an error or true if bool
@@ -75,11 +92,11 @@ func (v *Validator) Must(x interface{}, msg interface{}) bool {
 		panic("validator: invalid msg")
 	}
 
-	v.errors = append(v.errors, m)
+	v.err.errors = append(v.err.errors, m)
 	return false
 }
 
 // Add adds errors
 func (v *Validator) Add(err ...error) {
-	v.errors = append(v.errors, err...)
+	v.err.errors = append(v.err.errors, err...)
 }
