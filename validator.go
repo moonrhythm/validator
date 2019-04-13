@@ -33,6 +33,12 @@ func (err *Error) clone() *Error {
 	return &Error{errors: err.errors}
 }
 
+// IsError returns true if given error is validate error
+func IsError(err error) bool {
+	_, ok := err.(*Error)
+	return ok
+}
+
 // New creates new validator
 func New() *Validator {
 	return &Validator{}
