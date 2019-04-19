@@ -75,6 +75,10 @@ func (v *Validator) Valid() bool {
 //
 // msg must be error or string
 func (v *Validator) Must(x interface{}, msg interface{}) bool {
+	if x == nil {
+		return true
+	}
+
 	switch x := x.(type) {
 	case bool:
 		if x {
