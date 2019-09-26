@@ -2,6 +2,7 @@ package validator
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 )
 
@@ -104,6 +105,11 @@ func (v *Validator) Must(x interface{}, msg interface{}) bool {
 
 	v.err.errors = append(v.err.errors, m)
 	return false
+}
+
+// Mustf calls fmt.Sprintf(format, a...) and pass to v.Must
+func (v *Validator) Mustf(x interface{}, format string, a ...interface{}) bool {
+	return v.Must(x, fmt.Sprintf(format, a...))
 }
 
 // Add adds errors
