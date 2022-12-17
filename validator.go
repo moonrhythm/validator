@@ -75,6 +75,7 @@ func (v *Validator) Valid() bool {
 // and return true if valid
 //
 // msg must be error or string
+// msg can be nil if x is error
 func (v *Validator) Must(x interface{}, msg interface{}) bool {
 	if x == nil {
 		return true
@@ -91,6 +92,13 @@ func (v *Validator) Must(x interface{}, msg interface{}) bool {
 		}
 	default:
 		panic("validator: invalid input")
+	}
+
+	if msg == nil {
+		if err, ok := x.(error); ok {
+			v.err.errors = append(v.err.errors, err)
+			return false
+		}
 	}
 
 	var m error
