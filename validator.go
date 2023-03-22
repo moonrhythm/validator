@@ -96,7 +96,7 @@ func (v *Validator) Must(x interface{}, msg interface{}) bool {
 
 	if msg == nil {
 		if err, ok := x.(error); ok {
-			v.err.errors = append(v.err.errors, err)
+			v.addError(err)
 			return false
 		}
 	}
@@ -111,7 +111,7 @@ func (v *Validator) Must(x interface{}, msg interface{}) bool {
 		panic("validator: invalid msg")
 	}
 
-	v.err.errors = append(v.err.errors, m)
+	v.addError(m)
 	return false
 }
 
@@ -122,5 +122,18 @@ func (v *Validator) Mustf(x interface{}, format string, a ...interface{}) bool {
 
 // Add adds errors
 func (v *Validator) Add(err ...error) {
-	v.err.errors = append(v.err.errors, err...)
+	for _, e := range err {
+		if e == nil {
+			continue
+		}
+		v.addError(e)
+	}
+}
+
+func (v *Validator) addError(err error) {
+	if IsError(err) {
+		v.err.errors = append(v.err.errors, err.(*Error).errors...)
+		return
+	}
+	v.err.errors = append(v.err.errors, err)
 }

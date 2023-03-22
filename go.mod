@@ -1,3 +1,3 @@
 module github.com/moonrhythm/validator
 
-go 1.12
+go 1.20
